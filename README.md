@@ -3,6 +3,10 @@
 
 # ROW NUM 사용시 주의사항
 이런식으로 rownum 을 밖에다 빼줘야한다. 
+
+
+
+
 SELECT ROW_NUMBER() OVER(ORDER BY TS.movieSeq DESC) AS num,  TS.prodYear FROM (
 SELECT * FROM (
 		SELECT 
