@@ -7,77 +7,36 @@
 
 
 
-SELECT ROW_NUMBER() OVER(ORDER BY TS.movieSeq DESC) AS num,  TS.prodYear FROM (
-SELECT * FROM (
-		SELECT 
-		A.MOVIE_SEQ AS movieSeq
-		, A.TITLE AS title
-		,
-		A.TITLE_SEARCH AS titleSearch
-		, A.ORG_TIT AS orgTit
-		,
-		A.ORG_TIT_ENG AS orgTitEng
-		, A.TITLE_ENG AS titleEng
-		,
-		A.DIRECTOR AS director
-		, A.ORG_AUTHOR AS orgAuthor
-		,
-		A.SCENARIO AS scenario
-		, A.CASTS AS casts
-		, TA.CODE_NM AS
-		nationalClss
-		, A.NATION_CLSS AS nationClss
-		, A.PROD_YEAR
-		AS prodYear
-		, A.COMPY_CLSS AS compyClss
-		, TC.CODE_NM AS
-		pattenClss
-		, A.TYPE_CLSS AS typeClss
-		, A.CNS_DATE AS
-		cnsDate
-		, TD.CODE_NM AS filmcnsClss
-		, C.CREDIT_ID
-		AS creditId
-		, C.CREDIT_SEQ AS creditSeq
-		,
-		C.PERSON_NM AS personNm
-		, C.STAFF AS staff
-		, B.PROD_NM AS prodNm
-		, B.PROD_ENG_NM AS prodEngNm
+SELECT ROWNUM AS NUM,
+TA.* FROM
+(SELECT DISTINCT MIN(p1.person_id) OVER(PARTITION BY p1.person_ID) MIN_PERSONID,
+p1.person_id AS personId,
+p1.title_search,
+p1.kornm AS kornm,
+p1.engnm AS engnm,
+p1.kornm_r AS kornmr,
+SUBSTR(p1.BIRTH_DATE,1,4) AS
+brthYr,
+DECODE(p1.life_yn,'D','Y','N') AS deathYn, SUBSTR(p1.death_date,1,4) AS deathYr,
+p1.debutyear AS debutYr,
+f2.FIELD_NM AS fields,
+p1.FILMOGRAPHY AS filmo,
+p1.PERSONIMG AS Image1,
+CONCAT('https://www.kmdb.or.kr/db/per/', p1.person_id) AS kmdbUrl,
+TO_CHAR(SUBSTR(p3.research_note, 1000, 4000)) AS researchs,
+p5.FIELD_NO AS fieldNo
+FROM
+kmdb.PERSON p1
+left outer JOIN kmdb.FIELD_CODE f2 ON p1.PERSONFIELD = f2.FIELD_NM
+LEFT OUTER JOIN kmdb.PERSON_FIELD p5 ON p1.PERSON_ID = p5.PERSON_ID
+left outer JOIN kmdb.PERSON_RESEARCH p3 ON p1.PERSON_ID = p3.PERSON_ID
+left outer JOIN (SELECT distinct M.TITLE_SEARCH , C.PERSON_ID FROM kmdb.CREDIT_MOVIE C, kmdb.MOVIE_SE M
+WHERE C.MOVIE_ID = M.MOVIE_ID AND C.MOVIE_SEQ = M.MOVIE_SEQ) p5 ON p5.person_id = p1.PERSON_ID
+WHERE 1 =1
+AND p1.kornm = '이미연'
+) TA
+WHERE ROWNUM BETWEEN 1 and 10
 
-		FROM kmdb.MOVIE_SE A
-		LEFT JOIN (SELECT MOVIE_ID, MOVIE_SEQ,PROD_NM,PROD_ENG_NM,CREDIT_ID, CREDIT_SEQ, STAFF FROM kmdb.MOVIE_PROD_REL MR 
-		WHERE 1 = 1 
-		AND ROWID IN (SELECT MAX(ROWID) FROM KMDB.MOVIE_PROD_REL KS WHERE  MR.MOVIE_SEQ  = KS.MOVIE_SEQ )) B on
-		B.MOVIE_SEQ=A.MOVIE_SEQ
-		LEFT JOIN
-		(SELECT A.CREDIT_ID, A.CREDIT_SEQ, A.PERSON_NM, A.STAFF, A.MOVIE_SEQ, A.MOVIE_ID 
-	FROM KMDB.CREDIT_MOVIE A
-	WHERE 1 = 1
-	AND ROWID IN (SELECT MAX(ROWID) FROM KMDB.CREDIT_MOVIE B
-                     WHERE A.MOVIE_SEQ = B.MOVIE_SEQ)) C on
-		C.MOVIE_SEQ=A.MOVIE_SEQ
-		LEFT OUTER JOIN
-		(SELECT CODE_NM ,CODE FROM
-		kmdb.CODEINFO WHERE DIV_ID
-		='A16') TA ON
-		TA.CODE = A.NATIONAL_CLSS
-		--LEFT OUTER JOIN (SELECT CODE_NM ,CODE FROM kmdb.CODEINFO WHERE DIV_ID ='A11') TB ON TA.CODE = A.COMPY_CLSS
-		LEFT OUTER JOIN (SELECT CODE_NM
-		,CODE FROM kmdb.CODEINFO WHERE DIV_ID
-		='A01') TC ON TC.CODE =
-		A.PATTEN_CLSS
-		LEFT OUTER JOIN (SELECT CODE_NM
-		,CODE FROM kmdb.CODEINFO
-		WHERE DIV_ID
-		='A29') TD ON TD.CODE =
-		A.FILMCNS_CLSS
-		WHERE 1 = 1
-		ORDER BY PRODYEAR ASC 
-		
-)
-ORDER BY PRODYEAR ASC 
-		)TS 
-	 WHERE num BETWEEN 1 and 10	
+
 		
 
