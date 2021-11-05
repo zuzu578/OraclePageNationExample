@@ -3,6 +3,7 @@
 
 # ROW NUM 사용시 주의사항
 이런식으로 rownum 을 밖에다 빼줘야한다. 
+# PARTION BY 를 이용하여 중복제거 
 
 
 
